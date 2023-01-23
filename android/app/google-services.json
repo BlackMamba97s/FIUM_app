@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "524097814756",
+    "project_id": "fium-e1385",
+    "storage_bucket": "fium-e1385.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524097814756:android:3a1c43e5f46b7003962cf1",
+        "android_client_info": {
+          "package_name": "com.fium_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "524097814756-bjc9tm1r8316aq4e3oiuo6f29sk4k1r7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTP0nDYgamejAwSt808-THE6K9EpwYySI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "524097814756-bjc9tm1r8316aq4e3oiuo6f29sk4k1r7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
