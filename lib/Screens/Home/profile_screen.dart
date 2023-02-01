@@ -9,10 +9,16 @@ import '../controllers/profile_controller.dart';
 class ProfileScreen extends StatefulWidget {
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
+
+
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileController _controller = ProfileController();
+  final TextEditingController _emailController = TextEditingController();
+  final _auth = FirebaseAuth.instance;
+
+
 
   @override
   void initState() {
@@ -25,10 +31,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     super.initState();
     _controller.init();
+    _emailController.text = _auth.currentUser.email;
   }
 
   @override
   Widget build(BuildContext context) {
+   // String _emailValue;
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile',
@@ -62,26 +72,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SizedBox(
             height: 20,
           ),
-          Text(
-          _controller.model.email,
-            style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+            TextField(
+              controller: _emailController,
+              enabled: true,
+              decoration: InputDecoration(
+                labelText: 'Email',
+              ),
             ),
-          ),
           SizedBox(
             height: 10,
           ),
           Flexible(
-            child: TextField(
-              enabled: true,
-              decoration: InputDecoration(
-                labelText: _controller.model.email,
-              ),
-              onSubmitted: (value) {
-                _controller.updateEmail(value);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen()));
+            child: TextButton(
+              onPressed: () {
+                _controller.updateEmail(_emailController.text);
               },
+              child: Text(
+                'Update Email',
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
             ),
           ),
     SizedBox(
@@ -109,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     child: Text(
     'Edit Profile',
     style: TextStyle(
-    color: Colors.white,
+    color: Colors.blue,
     ),
     ),
     ),
