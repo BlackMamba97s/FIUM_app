@@ -7,7 +7,9 @@ import 'package:dio/dio.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:login_signup/Screens/models/home_model.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../Components/navbar.dart';
+import 'package:downloads_path_provider/downloads_path_provider.dart';
 
 User loggedinUser;
 
@@ -62,36 +64,43 @@ class HomeController {
   }
 
    void uploadFile(File file, selected_choice) async {
-    print(selected_choice + " this is the selected choice");
-     var bytes = await file.readAsBytes();
-     var formData = FormData.fromMap({
-       "file": MultipartFile.fromBytes(bytes, filename: file.path.split("/").last),
-       "selected_choice": selected_choice,
-     });
-     var response = await _dio.post(_url, data: formData);
-     print(response);
+    try{
+      print(selected_choice + " this is the selected choice");
+       var bytes = await file.readAsBytes();
+       var formData = FormData.fromMap({
+         "file": MultipartFile.fromBytes(bytes, filename: file.path.split("/").last),
+         "selected_choice": selected_choice,
+       });
+      var response = await _dio.post(_url, data: formData, options: Options(responseType: ResponseType.stream,
+          receiveTimeout: 100000));
 
-     // Get the directory where the file should be stored
-     var dir = await getExternalStorageDirectory();
-     var fileName = '${file.path.split("/").last.split('.')[0]}_converted.${response.data['file_ext']}';
-     var filePath = '${dir.path}/Downloads/$fileName';
-
-     var download = await _dio.download(response.data['file_url'], filePath, onReceiveProgress: (received, total) {
-       if (total != -1) {
-         print((received / total * 100).toStringAsFixed(0) + "%");
-       }
-     });
-
-    if(download.statusCode == 200) {
-      var file = File(filePath);
-      if(await file.exists()) {
-        print("File stored successfully");
+      if (response.statusCode == 200) {
+        var fileName = response.headers.map['content-disposition'][0].split('=')[1];
+        var status = await Permission.storage.status;
+        if (!status.isGranted) {
+          await Permission.storage.request();
+        }
+        var downloadsDirectory = await DownloadsPathProvider.downloadsDirectory;
+        var saveFile = File('${downloadsDirectory.path}/$fileName');
+        var sink = saveFile.openWrite();
+        await sink.addStream(response.data.stream); // Convert ResponseBody to ByteStream
+        await sink.flush();
+        await sink.close();
+        print('File saved successfully');
       } else {
-        print("Error storing the file");
+        print('Error while uploading file');
       }
-    } else {
-      print("Error downloading the file");
+     } catch (e) {
+    print(e);
     }
     _homeModel.isFileUploaded = false;
+  }
+
+
+  Future<File> saveFile(Stream<List<int>> stream) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/jpgs.zip');
+    await file.writeAsBytes(await stream.toList().then((data) => data.expand((i) => i).toList()));
+    return file;
   }
 }
